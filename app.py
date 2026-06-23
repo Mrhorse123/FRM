@@ -821,7 +821,7 @@ def load_data():
         "Saudi Arabia": "沙特阿拉伯", "United Arab Emirates": "阿拉伯联合酋长国", "USA": "美国",
         "European Community": "欧盟", "RSA": "南非", "Unspecified": "未指定",
     }
-    df["Country"] = df["Country"].replace(_COUNTRY_MAP)
+    df["Country"] = df["Country"].astype(str).replace(_COUNTRY_MAP).astype("category")
     df["CustomerID"]  = df["CustomerID"].astype("int32").astype(str)
     df["Year"]   = df["InvoiceDate"].dt.year.astype("int16")
     df["Month"]  = df["InvoiceDate"].dt.to_period("M").astype(str)
