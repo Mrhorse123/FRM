@@ -792,8 +792,8 @@ div[data-testid="stVerticalBlock"] {
 @st.cache_data(ttl=3600)
 def load_data():
     _base = os.path.dirname(os.path.abspath(__file__))
-    _csv  = os.path.join(_base, "online+retail", "Online Retail.csv")
-    _xlsx = os.path.join(_base, "online+retail", "Online Retail.xlsx")
+    _csv  = os.path.join(_base, "Online Retail.csv")
+    _xlsx = os.path.join(_base, "Online Retail.xlsx")
     if not os.path.exists(_csv):
         _tmp = pd.read_excel(_xlsx)
         _tmp.to_csv(_csv, index=False)
