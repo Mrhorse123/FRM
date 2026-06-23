@@ -143,4 +143,4 @@ google_fonts_url = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;
 
 # ===== 侧边栏 =====
 [sidebar]
-footer_html = "Liquid Glass · 电商用户价值分析<br/>Powered by Streamlit + Pyecharts"
+footer_html = "液态玻璃 · 电商用户价值分析<br/>基于 Streamlit + Pyecharts 构建"

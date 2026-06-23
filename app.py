@@ -1909,13 +1909,13 @@ st.markdown(f'<p style="color:#8e8e93;font-size:0.82rem;margin-bottom:18px;">数
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.markdown(f'<div class="kpi-card"><p class="kpi-label">总销售额</p><p class="kpi-value">{total_revenue/1e6:,.2f}M</p><p class="kpi-sub">Gross Revenue</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="kpi-card"><p class="kpi-label">总销售额</p><p class="kpi-value">{total_revenue/1e6:,.2f}M</p><p class="kpi-sub">总销售额</p></div>', unsafe_allow_html=True)
 with col2:
-    st.markdown(f'<div class="kpi-card"><p class="kpi-label">总订单数</p><p class="kpi-value">{total_orders:,}</p><p class="kpi-sub">Total Orders</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="kpi-card"><p class="kpi-label">总订单数</p><p class="kpi-value">{total_orders:,}</p><p class="kpi-sub">总订单数</p></div>', unsafe_allow_html=True)
 with col3:
-    st.markdown(f'<div class="kpi-card"><p class="kpi-label">用户数</p><p class="kpi-value">{total_users:,}</p><p class="kpi-sub">Unique Customers</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="kpi-card"><p class="kpi-label">用户数</p><p class="kpi-value">{total_users:,}</p><p class="kpi-sub">独立客户数</p></div>', unsafe_allow_html=True)
 with col4:
-    st.markdown(f'<div class="kpi-card"><p class="kpi-label">客单价</p><p class="kpi-value">{avg_order:,.2f}</p><p class="kpi-sub">Avg Order Value</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="kpi-card"><p class="kpi-label">客单价</p><p class="kpi-value">{avg_order:,.2f}</p><p class="kpi-sub">平均客单价</p></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs(["📈 经营概览", "🔍 EDA 探索", "🎯 RFM 分层", "📋 数据详情"])
 
