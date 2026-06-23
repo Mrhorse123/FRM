@@ -808,6 +808,20 @@ def load_data():
     df = df[df["Quantity"] > 0]
     df = df[df["UnitPrice"] > 0]
     df["Amount"]   = (df["Quantity"] * df["UnitPrice"]).astype("float32")
+    # 国家名英译中
+    _COUNTRY_MAP = {
+        "United Kingdom": "英国", "Germany": "德国", "France": "法国", "EIRE": "爱尔兰",
+        "Spain": "西班牙", "Netherlands": "荷兰", "Belgium": "比利时", "Switzerland": "瑞士",
+        "Portugal": "葡萄牙", "Australia": "澳大利亚", "Norway": "挪威", "Italy": "意大利",
+        "Channel Islands": "海峡群岛", "Cyprus": "塞浦路斯", "Finland": "芬兰", "Austria": "奥地利",
+        "Greece": "希腊", "Sweden": "瑞典", "Japan": "日本", "Poland": "波兰",
+        "Denmark": "丹麦", "Iceland": "冰岛", "Malta": "马耳他", "Singapore": "新加坡",
+        "Hong Kong": "中国香港", "Canada": "加拿大", "Israel": "以色列", "Lebanon": "黎巴嫩",
+        "Lithuania": "立陶宛", "Czech Republic": "捷克", "Bahrain": "巴林", "Brazil": "巴西",
+        "Saudi Arabia": "沙特阿拉伯", "United Arab Emirates": "阿拉伯联合酋长国", "USA": "美国",
+        "European Community": "欧盟", "RSA": "南非", "Unspecified": "未指定",
+    }
+    df["Country"] = df["Country"].replace(_COUNTRY_MAP)
     df["CustomerID"]  = df["CustomerID"].astype("int32").astype(str)
     df["Year"]   = df["InvoiceDate"].dt.year.astype("int16")
     df["Month"]  = df["InvoiceDate"].dt.to_period("M").astype(str)
