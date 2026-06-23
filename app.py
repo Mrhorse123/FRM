@@ -1706,114 +1706,69 @@ if bg_file:
 else:
     st.markdown('<div class="bg-layer bg-default"></div>', unsafe_allow_html=True)
 
-# ===== 暗色背景 CSS（通过 .dark-bg 类切换，不触发页面重载） =====
-st.markdown("""<style>
-html.dark-bg .stApp { color: #f5f5f7 !important; }
-html.dark-bg .glass-card {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border-color: rgba(255,255,255,0.12) !important;
-    box-shadow: none !important;
-}
-html.dark-bg .glass-card:hover {
-    border-color: rgba(255,255,255,0.20) !important;
-}
-html.dark-bg .kpi-card {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border-color: rgba(255,255,255,0.12) !important;
-    box-shadow: none !important;
-}
-html.dark-bg .kpi-card:hover {
-    border-color: rgba(255,255,255,0.20) !important;
-}
-html.dark-bg .kpi-label { color: rgba(255,255,255,0.6) !important; }
-html.dark-bg .kpi-sub { color: rgba(255,255,255,0.25) !important; }
-html.dark-bg .kpi-value { color: #fff !important; }
-html.dark-bg .main-title { color: #fff !important; }
-html.dark-bg .sub-title { color: rgba(255,255,255,0.9) !important; }
-html.dark-bg .sub-title::before { background: linear-gradient(180deg, #5AC8FA, #007AFF) !important; }
-html.dark-bg .seg-chip { color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.15) !important; }
-html.dark-bg section[data-testid="stSidebar"] {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border-right: 0.5px solid rgba(255,255,255,0.08) !important;
-}
-html.dark-bg section[data-testid="stSidebar"] label,
-html.dark-bg section[data-testid="stSidebar"] .stMarkdown,
-html.dark-bg section[data-testid="stSidebar"] .stMarkdown p,
-html.dark-bg section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"],
-html.dark-bg section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"] input,
-html.dark-bg section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"],
-html.dark-bg section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"] input {
-    color: rgba(255,255,255,0.85) !important;
-}
-html.dark-bg .stTabs [data-baseweb="tab-list"] {
-    background: transparent !important;
-    border-color: rgba(255,255,255,0.08) !important;
-}
-html.dark-bg .stTabs [data-baseweb="tab"] {
-    color: rgba(255,255,255,0.5) !important;
-}
-html.dark-bg .stTabs [data-baseweb="tab"]:hover {
-    color: rgba(255,255,255,0.8) !important;
-}
-html.dark-bg .stTabs [aria-selected="true"] {
-    background: transparent !important;
-    color: #fff !important;
-}
-html.dark-bg .stTabs [data-baseweb="tab-panel"] {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-html.dark-bg div[data-baseweb="select"] > div,
-html.dark-bg div[data-baseweb="multiselect"] > div,
-html.dark-bg div[data-testid="stDateInput"] > div > div {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    color: #f5f5f7 !important;
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.08) !important;
-}
-html.dark-bg div[data-baseweb="select"] [data-baseweb="input"] input,
-html.dark-bg div[data-baseweb="multiselect"] [data-baseweb="input"] input {
-    color: #fff !important;
-}
-html.dark-bg div[data-baseweb="select"] [data-baseweb="input"] svg,
-html.dark-bg div[data-baseweb="multiselect"] [data-baseweb="input"] svg {
-    fill: rgba(255,255,255,0.5) !important;
-}
-html.dark-bg ul[data-baseweb="menu"] {
-    background: rgba(30,30,35,0.92) !important;
-    border-color: rgba(255,255,255,0.08) !important;
-}
-html.dark-bg li[data-baseweb="menu-item"] { color: rgba(255,255,255,0.9) !important; }
-html.dark-bg li[data-baseweb="menu-item"]:hover { background: rgba(255,255,255,0.08) !important; }
-html.dark-bg th { background: transparent !important; color: rgba(255,255,255,0.9) !important; }
-html.dark-bg .stDataFrame table { color: rgba(255,255,255,0.8) !important; }
-html.dark-bg .stStatusWidget {
-    background: rgba(255,255,255,0.08) !important;
-    border-color: rgba(255,255,255,0.1) !important;
-}
-html.dark-bg hr { background: rgba(255,255,255,0.1) !important; }
-html.dark-bg ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
-
-html.dark-bg .stMarkdown > div[data-testid="stMarkdownContainer"],
-html.dark-bg .stHtml > div[data-testid="stHtmlContainer"] {
-    background: transparent !important;
-}
-html.dark-bg main .stMarkdown,
-html.dark-bg main .stHtml {
-    background: transparent !important;
-}
-html.dark-bg div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"],
-html.dark-bg div[data-testid="stColumns"] > div[data-testid="column"] {
-    background: transparent !important;
-}
+# ===== 暗色背景样式 =====
+if bg_file:
+    st.markdown("""<style>
+        .stApp { color: #f5f5f7 !important; }
+        .glass-card {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: none !important;
+        }
+        .glass-card:hover { border-color: rgba(255,255,255,0.20) !important; }
+        .kpi-card {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: none !important;
+        }
+        .kpi-card:hover { border-color: rgba(255,255,255,0.20) !important; }
+        .kpi-label { color: rgba(255,255,255,0.6) !important; }
+        .kpi-sub { color: rgba(255,255,255,0.25) !important; }
+        .kpi-value { color: #fff !important; }
+        .main-title { color: #fff !important; }
+        .sub-title { color: rgba(255,255,255,0.9) !important; }
+        .sub-title::before { background: linear-gradient(180deg, #5AC8FA, #007AFF) !important; }
+        .seg-chip { color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.15) !important; }
+        section[data-testid="stSidebar"] {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            border-right: 0.5px solid rgba(255,255,255,0.08) !important;
+        }
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] .stMarkdown,
+        section[data-testid="stSidebar"] .stMarkdown p,
+        section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"],
+        section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"] input,
+        section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"],
+        section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"] input {
+            color: rgba(255,255,255,0.85) !important;
+        }
+        .stTabs [data-baseweb="tab-list"] { border-color: rgba(255,255,255,0.08) !important; }
+        .stTabs [data-baseweb="tab"] { color: rgba(255,255,255,0.5) !important; }
+        .stTabs [data-baseweb="tab"]:hover { color: rgba(255,255,255,0.8) !important; }
+        .stTabs [aria-selected="true"] { color: #fff !important; }
+        .stTabs [data-baseweb="tab-panel"] { border: none !important; box-shadow: none !important; }
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="multiselect"] > div,
+        div[data-testid="stDateInput"] > div > div {
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            color: #f5f5f7 !important;
+        }
+        div[data-baseweb="select"] [data-baseweb="input"] input,
+        div[data-baseweb="multiselect"] [data-baseweb="input"] input { color: #fff !important; }
+        ul[data-baseweb="menu"] {
+            background: rgba(30,30,35,0.92) !important;
+            border-color: rgba(255,255,255,0.08) !important;
+        }
+        li[data-baseweb="menu-item"] { color: rgba(255,255,255,0.9) !important; }
+        li[data-baseweb="menu-item"]:hover { background: rgba(255,255,255,0.08) !important; }
+        th { background: transparent !important; color: rgba(255,255,255,0.9) !important; }
+        .stDataFrame table { color: rgba(255,255,255,0.8) !important; }
+        hr { background: rgba(255,255,255,0.1) !important; }
 </style>""", unsafe_allow_html=True)
 
 
