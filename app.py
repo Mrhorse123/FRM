@@ -1659,9 +1659,60 @@ df = load_data()
 with st.sidebar:
     st.markdown('<p class="sub-title" style="margin-bottom:20px;">⚙️ 控制面板</p>', unsafe_allow_html=True)
 
-    # 背景选择器
+    # 背景选择器 — 纯 JS 切换，不触发页面重载
     bg_options = list(BACKGROUNDS.keys())
-    bg_choice = st.selectbox("🎨 背景主题", bg_options, index=0)
+    bg_urls = {}
+    for name, fname in BACKGROUNDS.items():
+        if fname:
+            url = _bg_to_data_url(fname)
+            bg_urls[name] = url or ""
+        else:
+            bg_urls[name] = ""
+
+    import json as _json
+    _bg_json = _json.dumps(bg_urls)
+    _bg_list = _json.dumps(bg_options)
+
+    st.components.v1.html(f"""
+    <style>
+    .cs-bg-select {{
+        width: 100%; padding: 8px 10px; border-radius: 8px;
+        border: 1px solid rgba(128,128,128,0.3); background: rgba(255,255,255,0.08);
+        color: inherit; font-size: 0.85rem; font-family: inherit; cursor: pointer;
+        outline: none; margin-bottom: 12px;
+    }}
+    .cs-bg-select:focus {{ border-color: #007AFF; }}
+    .cs-bg-label {{ font-size: 0.82rem; font-weight: 500; margin-bottom: 4px; display:block; }}
+    </style>
+    <label class="cs-bg-label">🎨 背景主题</label>
+    <select class="cs-bg-select" id="csBgSelect">
+    </select>
+    <script>
+    var bgUrls = {_bg_json};
+    var bgList = {_bg_list};
+    var s = document.getElementById('csBgSelect');
+    bgList.forEach(function(name) {{
+        var o = document.createElement('option');
+        o.value = name; o.textContent = name;
+        if (name === bgList[0]) o.selected = true;
+        s.appendChild(o);
+    }});
+    var layer = document.querySelector('.bg-layer');
+    s.addEventListener('change', function() {{
+        var v = this.value;
+        var url = bgUrls[v];
+        if (url) {{
+            layer.style.background = "url('" + url + "') center/cover no-repeat fixed";
+            layer.classList.remove('bg-default');
+            document.documentElement.classList.add('dark-bg');
+        }} else {{
+            layer.style.background = '';
+            layer.classList.add('bg-default');
+            document.documentElement.classList.remove('dark-bg');
+        }}
+    }});
+    </script>
+    """, height=65)
 
     start_date = st.date_input("开始日期", value=pd.to_datetime("2010-12-01"))
     end_date   = st.date_input("结束日期", value=pd.to_datetime("2011-12-09"))
@@ -1682,128 +1733,118 @@ with st.sidebar:
     )
 
 
-# ===== 背景层（必须在 main 区域注入，不能在 sidebar 里） =====
-bg_file = BACKGROUNDS.get(bg_choice)
-if bg_file:
-    bg_url = _bg_to_data_url(bg_file)
-    if bg_url:
-        st.markdown(
-            f"<div class=\"bg-layer\" style=\"background:url('{bg_url}') center/cover no-repeat fixed;\"></div>",
-            unsafe_allow_html=True
-        )
-        # 暗色背景时文字改白
-        st.markdown("""<style>
-            .stApp { color: #f5f5f7 !important; }
-            .glass-card {
-                background: transparent !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                border-color: rgba(255,255,255,0.12) !important;
-                box-shadow: none !important;
-            }
-            .glass-card:hover {
-                border-color: rgba(255,255,255,0.20) !important;
-            }
-            .kpi-card {
-                background: transparent !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                border-color: rgba(255,255,255,0.12) !important;
-                box-shadow: none !important;
-            }
-            .kpi-card:hover {
-                border-color: rgba(255,255,255,0.20) !important;
-            }
-            .kpi-label { color: rgba(255,255,255,0.6) !important; }
-            .kpi-sub { color: rgba(255,255,255,0.25) !important; }
-            .kpi-value { color: #fff !important; }
-            .main-title { color: #fff !important; }
-            .sub-title { color: rgba(255,255,255,0.9) !important; }
-            .sub-title::before { background: linear-gradient(180deg, #5AC8FA, #007AFF) !important; }
-            .seg-chip { color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.15) !important; }
-            section[data-testid="stSidebar"] {
-                background: transparent !important;
-                backdrop-filter: none !important;
-                border-right: 0.5px solid rgba(255,255,255,0.08) !important;
-            }
-            section[data-testid="stSidebar"] label,
-            section[data-testid="stSidebar"] .stMarkdown,
-            section[data-testid="stSidebar"] .stMarkdown p,
-            section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"],
-            section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"] input,
-            section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"],
-            section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"] input {
-                color: rgba(255,255,255,0.85) !important;
-            }
-            .stTabs [data-baseweb="tab-list"] {
-                background: transparent !important;
-                border-color: rgba(255,255,255,0.08) !important;
-            }
-            .stTabs [data-baseweb="tab"] {
-                color: rgba(255,255,255,0.5) !important;
-            }
-            .stTabs [data-baseweb="tab"]:hover {
-                color: rgba(255,255,255,0.8) !important;
-            }
-            .stTabs [aria-selected="true"] {
-                background: transparent !important;
-                color: #fff !important;
-            }
-            .stTabs [data-baseweb="tab-panel"] {
-                background: transparent !important;
-                backdrop-filter: none !important;
-                border: none !important;
-                box-shadow: none !important;
-                /* removed border: 1px solid rgba(255,255,255,0.06);
-                box-shadow: none !important;
-            }
-            div[data-baseweb="select"] > div,
-            div[data-baseweb="multiselect"] > div,
-            div[data-testid="stDateInput"] > div > div {
-                background: transparent !important;
-                backdrop-filter: none !important;
-                border: 1px solid rgba(255,255,255,0.12) !important;
-                color: #f5f5f7 !important;
-                box-shadow: inset 0 1px 1px rgba(255,255,255,0.08) !important;
-            }
-            div[data-baseweb="select"] [data-baseweb="input"] input,
-            div[data-baseweb="multiselect"] [data-baseweb="input"] input {
-                color: #fff !important;
-            }
-            div[data-baseweb="select"] [data-baseweb="input"] svg,
-            div[data-baseweb="multiselect"] [data-baseweb="input"] svg {
-                fill: rgba(255,255,255,0.5) !important;
-            }
-            ul[data-baseweb="menu"] {
-                background: rgba(30,30,35,0.92) !important;
-                border-color: rgba(255,255,255,0.08) !important;
-            }
-            li[data-baseweb="menu-item"] { color: rgba(255,255,255,0.9) !important; }
-            li[data-baseweb="menu-item"]:hover { background: rgba(255,255,255,0.08) !important; }
-            th { background: transparent !important; color: rgba(255,255,255,0.9) !important; }
-            .stDataFrame table { color: rgba(255,255,255,0.8) !important; }
-            .stStatusWidget {
-                background: rgba(255,255,255,0.08) !important;
-                border-color: rgba(255,255,255,0.1) !important;
-            }
-            hr { background: rgba(255,255,255,0.1) !important; }
-            ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
-        
-.stMarkdown > div[data-testid="stMarkdownContainer"],
-.stHtml > div[data-testid="stHtmlContainer"] {
+# ===== 背景层（默认白色） =====
+st.markdown('<div class="bg-layer bg-default"></div>', unsafe_allow_html=True)
+
+# ===== 暗色背景 CSS（通过 .dark-bg 类切换，不触发页面重载） =====
+st.markdown("""<style>
+html.dark-bg .stApp { color: #f5f5f7 !important; }
+html.dark-bg .glass-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    box-shadow: none !important;
+}
+html.dark-bg .glass-card:hover {
+    border-color: rgba(255,255,255,0.20) !important;
+}
+html.dark-bg .kpi-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    box-shadow: none !important;
+}
+html.dark-bg .kpi-card:hover {
+    border-color: rgba(255,255,255,0.20) !important;
+}
+html.dark-bg .kpi-label { color: rgba(255,255,255,0.6) !important; }
+html.dark-bg .kpi-sub { color: rgba(255,255,255,0.25) !important; }
+html.dark-bg .kpi-value { color: #fff !important; }
+html.dark-bg .main-title { color: #fff !important; }
+html.dark-bg .sub-title { color: rgba(255,255,255,0.9) !important; }
+html.dark-bg .sub-title::before { background: linear-gradient(180deg, #5AC8FA, #007AFF) !important; }
+html.dark-bg .seg-chip { color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.15) !important; }
+html.dark-bg section[data-testid="stSidebar"] {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border-right: 0.5px solid rgba(255,255,255,0.08) !important;
+}
+html.dark-bg section[data-testid="stSidebar"] label,
+html.dark-bg section[data-testid="stSidebar"] .stMarkdown,
+html.dark-bg section[data-testid="stSidebar"] .stMarkdown p,
+html.dark-bg section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"],
+html.dark-bg section[data-testid="stSidebar"] [data-baseweb="select"] [data-baseweb="input"] input,
+html.dark-bg section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"],
+html.dark-bg section[data-testid="stSidebar"] [data-baseweb="multiselect"] [data-baseweb="input"] input {
+    color: rgba(255,255,255,0.85) !important;
+}
+html.dark-bg .stTabs [data-baseweb="tab-list"] {
+    background: transparent !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+html.dark-bg .stTabs [data-baseweb="tab"] {
+    color: rgba(255,255,255,0.5) !important;
+}
+html.dark-bg .stTabs [data-baseweb="tab"]:hover {
+    color: rgba(255,255,255,0.8) !important;
+}
+html.dark-bg .stTabs [aria-selected="true"] {
+    background: transparent !important;
+    color: #fff !important;
+}
+html.dark-bg .stTabs [data-baseweb="tab-panel"] {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html.dark-bg div[data-baseweb="select"] > div,
+html.dark-bg div[data-baseweb="multiselect"] > div,
+html.dark-bg div[data-testid="stDateInput"] > div > div {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    color: #f5f5f7 !important;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.08) !important;
+}
+html.dark-bg div[data-baseweb="select"] [data-baseweb="input"] input,
+html.dark-bg div[data-baseweb="multiselect"] [data-baseweb="input"] input {
+    color: #fff !important;
+}
+html.dark-bg div[data-baseweb="select"] [data-baseweb="input"] svg,
+html.dark-bg div[data-baseweb="multiselect"] [data-baseweb="input"] svg {
+    fill: rgba(255,255,255,0.5) !important;
+}
+html.dark-bg ul[data-baseweb="menu"] {
+    background: rgba(30,30,35,0.92) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+html.dark-bg li[data-baseweb="menu-item"] { color: rgba(255,255,255,0.9) !important; }
+html.dark-bg li[data-baseweb="menu-item"]:hover { background: rgba(255,255,255,0.08) !important; }
+html.dark-bg th { background: transparent !important; color: rgba(255,255,255,0.9) !important; }
+html.dark-bg .stDataFrame table { color: rgba(255,255,255,0.8) !important; }
+html.dark-bg .stStatusWidget {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+html.dark-bg hr { background: rgba(255,255,255,0.1) !important; }
+html.dark-bg ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+html.dark-bg .stMarkdown > div[data-testid="stMarkdownContainer"],
+html.dark-bg .stHtml > div[data-testid="stHtmlContainer"] {
     background: transparent !important;
 }
-main .stMarkdown,
-main .stHtml {
+html.dark-bg main .stMarkdown,
+html.dark-bg main .stHtml {
     background: transparent !important;
 }
-div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"],
-div[data-testid="stColumns"] > div[data-testid="column"] {
+html.dark-bg div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"],
+html.dark-bg div[data-testid="stColumns"] > div[data-testid="column"] {
     background: transparent !important;
 }
 </style>""", unsafe_allow_html=True)
-else:
-    st.markdown('<div class="bg-layer bg-default"></div>', unsafe_allow_html=True)
 
 
 
