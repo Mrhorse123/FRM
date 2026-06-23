@@ -789,23 +789,27 @@ div[data-testid="stVerticalBlock"] {
 
 
 # ===== 数据加载与缓存 =====
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=86400)  # 缓存24小时
 def load_data():
     _base = os.path.dirname(os.path.abspath(__file__))
     _csv  = os.path.join(_base, "Online Retail.csv")
-    _xlsx = os.path.join(_base, "Online Retail.xlsx")
-    if not os.path.exists(_csv):
-        _tmp = pd.read_excel(_xlsx)
-        _tmp.to_csv(_csv, index=False)
-        del _tmp
-    df = pd.read_csv(_csv)
+    # 使用更小的数据类型优化内存和加载速度
+    dtypes = {
+        "InvoiceNo": "category",
+        "StockCode": "category",
+        "Description": "category",
+        "Quantity": "int32",
+        "UnitPrice": "float32",
+        "CustomerID": "float32",
+        "Country": "category",
+    }
+    df = pd.read_csv(_csv, dtype=dtypes, parse_dates=["InvoiceDate"])
     df = df.dropna(subset=["CustomerID"])
     df = df[df["Quantity"] > 0]
     df = df[df["UnitPrice"] > 0]
-    df["Amount"]   = df["Quantity"] * df["UnitPrice"]
-    df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
-    df["CustomerID"]  = df["CustomerID"].astype(int).astype(str)
-    df["Year"]   = df["InvoiceDate"].dt.year
+    df["Amount"]   = (df["Quantity"] * df["UnitPrice"]).astype("float32")
+    df["CustomerID"]  = df["CustomerID"].astype("int32").astype(str)
+    df["Year"]   = df["InvoiceDate"].dt.year.astype("int16")
     df["Month"]  = df["InvoiceDate"].dt.to_period("M").astype(str)
     df["Date"]   = df["InvoiceDate"].dt.date
     return df
