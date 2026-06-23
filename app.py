@@ -1334,6 +1334,7 @@ SEGMENT_ORDER = list(SEGMENT_COLORS.keys())
 
 # ===== 图表构建函数 =====
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_monthly_trend(df):
     monthly = df.groupby("Month").agg(销售额=("Amount", "sum"), 订单数=("InvoiceNo", "nunique")).reset_index()
     months = monthly["Month"].tolist()
@@ -1364,6 +1365,7 @@ def chart_monthly_trend(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_country_top10(df):
     country = df.groupby("Country").agg(销售额=("Amount", "sum")).sort_values("销售额", ascending=False).head(10)
     c = (
@@ -1391,6 +1393,7 @@ def chart_country_top10(df):
     return c
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_rfm_pie(rfm):
     seg_counts = rfm["Segment"].value_counts()
     data = [[k, int(seg_counts.get(k, 0))] for k in SEGMENT_ORDER if k in seg_counts.index]
@@ -1406,6 +1409,7 @@ def chart_rfm_pie(rfm):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_rfm_bar(rfm):
     agg = rfm.groupby("Segment").agg(用户数=("CustomerID", "nunique"), 销售额=("M", "sum")).reindex(SEGMENT_ORDER).fillna(0)
     segs = agg.index.tolist()
@@ -1439,6 +1443,7 @@ def chart_rfm_bar(rfm):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_eda_hist(df):
     amounts = df["Amount"].clip(upper=df["Amount"].quantile(0.99))
     # 手动分箱
@@ -1464,6 +1469,7 @@ def chart_eda_hist(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_eda_top10(df):
     top10 = df.groupby("Description").agg(销售额=("Amount", "sum")).sort_values("销售额", ascending=False).head(10)
     return (
@@ -1485,6 +1491,7 @@ def chart_eda_top10(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_eda_heatmap(df):
     df = df.copy()
     df["Hour"] = df["InvoiceDate"].dt.hour
@@ -1522,6 +1529,7 @@ def chart_eda_heatmap(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_eda_hour(df):
     hour = df.groupby(df["InvoiceDate"].dt.hour).agg(订单数=("InvoiceNo", "nunique")).reset_index()
     hour.columns = ["小时", "订单数"]
@@ -1543,6 +1551,7 @@ def chart_eda_hour(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_eda_weekday(df):
     wd = df.groupby(df["InvoiceDate"].dt.dayofweek).agg(订单数=("InvoiceNo", "nunique")).reset_index()
     wd.columns = ["星期", "订单数"]
@@ -1566,6 +1575,7 @@ def chart_eda_weekday(df):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_rfm_scatter(rfm):
     seg_list = SEGMENT_ORDER
     data_map = {s: [[], []] for s in seg_list}
@@ -1599,6 +1609,7 @@ def chart_rfm_scatter(rfm):
     return sc
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_rose(rfm):
     seg_counts = rfm["Segment"].value_counts()
     data = [[k, int(seg_counts.get(k, 0))] for k in SEGMENT_ORDER if k in seg_counts.index]
@@ -1612,6 +1623,7 @@ def chart_rose(rfm):
     )
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
 def chart_sankey(rfm):
     seg_counts = rfm["Segment"].value_counts()
     rfm["R_group"] = rfm["R_score"].apply(lambda x: "高活跃" if x >= 4 else "低活跃")
@@ -1659,60 +1671,9 @@ df = load_data()
 with st.sidebar:
     st.markdown('<p class="sub-title" style="margin-bottom:20px;">⚙️ 控制面板</p>', unsafe_allow_html=True)
 
-    # 背景选择器 — 纯 JS 切换，不触发页面重载
+    # 背景选择器
     bg_options = list(BACKGROUNDS.keys())
-    bg_urls = {}
-    for name, fname in BACKGROUNDS.items():
-        if fname:
-            url = _bg_to_data_url(fname)
-            bg_urls[name] = url or ""
-        else:
-            bg_urls[name] = ""
-
-    import json as _json
-    _bg_json = _json.dumps(bg_urls)
-    _bg_list = _json.dumps(bg_options)
-
-    st.components.v1.html(f"""
-    <style>
-    .cs-bg-select {{
-        width: 100%; padding: 8px 10px; border-radius: 8px;
-        border: 1px solid rgba(128,128,128,0.3); background: rgba(255,255,255,0.08);
-        color: inherit; font-size: 0.85rem; font-family: inherit; cursor: pointer;
-        outline: none; margin-bottom: 12px;
-    }}
-    .cs-bg-select:focus {{ border-color: #007AFF; }}
-    .cs-bg-label {{ font-size: 0.82rem; font-weight: 500; margin-bottom: 4px; display:block; }}
-    </style>
-    <label class="cs-bg-label">🎨 背景主题</label>
-    <select class="cs-bg-select" id="csBgSelect">
-    </select>
-    <script>
-    var bgUrls = {_bg_json};
-    var bgList = {_bg_list};
-    var s = document.getElementById('csBgSelect');
-    bgList.forEach(function(name) {{
-        var o = document.createElement('option');
-        o.value = name; o.textContent = name;
-        if (name === bgList[0]) o.selected = true;
-        s.appendChild(o);
-    }});
-    var layer = document.querySelector('.bg-layer');
-    s.addEventListener('change', function() {{
-        var v = this.value;
-        var url = bgUrls[v];
-        if (url) {{
-            layer.style.background = "url('" + url + "') center/cover no-repeat fixed";
-            layer.classList.remove('bg-default');
-            document.documentElement.classList.add('dark-bg');
-        }} else {{
-            layer.style.background = '';
-            layer.classList.add('bg-default');
-            document.documentElement.classList.remove('dark-bg');
-        }}
-    }});
-    </script>
-    """, height=65)
+    bg_choice = st.selectbox("🎨 背景主题", bg_options, index=0, key="bg_select")
 
     start_date = st.date_input("开始日期", value=pd.to_datetime("2010-12-01"))
     end_date   = st.date_input("结束日期", value=pd.to_datetime("2011-12-09"))
@@ -1733,8 +1694,17 @@ with st.sidebar:
     )
 
 
-# ===== 背景层（默认白色） =====
-st.markdown('<div class="bg-layer bg-default"></div>', unsafe_allow_html=True)
+# ===== 背景层 =====
+bg_file = BACKGROUNDS.get(bg_choice)
+if bg_file:
+    bg_url = _bg_to_data_url(bg_file)
+    if bg_url:
+        st.markdown(
+            f"<div class=\"bg-layer\" style=\"background:url('{bg_url}') center/cover no-repeat fixed;\"></div>",
+            unsafe_allow_html=True
+        )
+else:
+    st.markdown('<div class="bg-layer bg-default"></div>', unsafe_allow_html=True)
 
 # ===== 暗色背景 CSS（通过 .dark-bg 类切换，不触发页面重载） =====
 st.markdown("""<style>
