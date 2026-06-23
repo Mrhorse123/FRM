@@ -4,6 +4,7 @@
 Glassmorphism Design · Streamlit + Pyecharts
 """
 import streamlit as st
+import tomllib
 import pandas as pd
 import numpy as np
 import tempfile, os, json
@@ -13,21 +14,44 @@ from pyecharts import options as opts
 from pyecharts.commons.utils import JsCode
 import streamlit.components.v1 as components
 
+# ===== 加载配置文件 =====
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def _load_config():
+    """加载 config.toml 配置，返回嵌套字典"""
+    config_path = os.path.join(_BASE_DIR, "config.toml")
+    if os.path.exists(config_path):
+        with open(config_path, "rb") as f:
+            return tomllib.load(f)
+    return {}
+
+CFG = _load_config()
+
 # ===== 页面配置 =====
-st.set_page_config(page_title="电商用户价值分析平台", page_icon="📊", layout="wide")
+_app = CFG.get("app", {})
+st.set_page_config(
+    page_title=_app.get("page_title", "电商用户价值分析平台"),
+    page_icon=_app.get("page_icon", "📊"),
+    layout=_app.get("layout", "wide"),
+)
 
 # ===== 背景图列表 =====
 import base64
-_BG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bg_images")
-BACKGROUNDS = {
-    "纯净白（默认）": None,
-    "深空蓝紫": "bg1_deep_space.jpg",
-    "日落暖橙": "bg2_sunset.jpg",
-    "极光青绿": "bg3_aurora.jpg",
-    "梦幻粉紫": "bg4_dreamy.jpg",
-    "苹果灰蓝": "bg5_apple_gray.jpg",
-    "黑金奢华": "bg6_black_gold.jpg",
-}
+_bg = CFG.get("backgrounds", {})
+_BG_DIR = os.path.join(_BASE_DIR, _bg.get("dir", "bg_images"))
+BACKGROUNDS = {}
+for name, fname in _bg.get("options", {}).items():
+    BACKGROUNDS[name] = fname if fname else None
+if not BACKGROUNDS:
+    BACKGROUNDS = {
+        "纯净白（默认）": None,
+        "深空蓝紫": "bg1_deep_space.jpg",
+        "日落暖橙": "bg2_sunset.jpg",
+        "极光青绿": "bg3_aurora.jpg",
+        "梦幻粉紫": "bg4_dreamy.jpg",
+        "苹果灰蓝": "bg5_apple_gray.jpg",
+        "黑金奢华": "bg6_black_gold.jpg",
+    }
 
 def _bg_to_data_url(filename):
     path = os.path.join(_BG_DIR, filename)
@@ -810,19 +834,24 @@ div[data-testid="stVerticalBlock"] {
 
 
 # ===== 数据加载与缓存 =====
-@st.cache_data(ttl=3600)
+_data_cfg = CFG.get("data", {})
+_DATA_DIR = _BASE_DIR
+_CSV  = os.path.join(_DATA_DIR, _data_cfg.get("csv_file", "Online Retail.csv"))
+_XLSX = os.path.join(_DATA_DIR, _data_cfg.get("xlsx_file", "Online Retail.xlsx"))
+_CACHE_TTL = _data_cfg.get("cache_ttl", 3600)
+_MIN_QTY  = _data_cfg.get("min_quantity", 0)
+_MIN_PRICE = _data_cfg.get("min_unit_price", 0)
+
+@st.cache_data(ttl=_CACHE_TTL)
 def load_data():
-    _base = os.path.dirname(os.path.abspath(__file__))
-    _csv  = os.path.join(_base, "online+retail", "Online Retail.csv")
-    _xlsx = os.path.join(_base, "online+retail", "Online Retail.xlsx")
-    if not os.path.exists(_csv):
-        _tmp = pd.read_excel(_xlsx)
-        _tmp.to_csv(_csv, index=False)
+    if not os.path.exists(_CSV):
+        _tmp = pd.read_excel(_XLSX)
+        _tmp.to_csv(_CSV, index=False)
         del _tmp
-    df = pd.read_csv(_csv)
+    df = pd.read_csv(_CSV)
     df = df.dropna(subset=["CustomerID"])
-    df = df[df["Quantity"] > 0]
-    df = df[df["UnitPrice"] > 0]
+    df = df[df["Quantity"] > _MIN_QTY]
+    df = df[df["UnitPrice"] > _MIN_PRICE]
     df["Amount"]   = df["Quantity"] * df["UnitPrice"]
     df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
     df["CustomerID"]  = df["CustomerID"].astype(int).astype(str)
@@ -832,7 +861,27 @@ def load_data():
     return df
 
 
-@st.cache_data(ttl=3600)
+_rfm_cfg = CFG.get("rfm", {})
+_RFM_BINS = _rfm_cfg.get("n_bins", 5)
+_RFM_THR  = _rfm_cfg.get("high_threshold", 4)
+_L = _rfm_cfg.get("labels", {})
+_L_IV = _L.get("important_value", "重要价值用户")
+_L_ID = _L.get("important_develop", "重要发展用户")
+_L_IR = _L.get("important_retain", "重要保持用户")
+_L_IT = _L.get("important_retrieve", "重要挽留用户")
+_L_GV = _L.get("general_value", "一般价值用户")
+_L_GD = _L.get("general_develop", "一般发展用户")
+_L_GR = _L.get("general_retain", "一般保持用户")
+_L_GT = _L.get("general_retrieve", "一般挽留用户")
+_SL = _rfm_cfg.get("sankey_labels", {})
+_SL_HR = _SL.get("high_r", "高活跃")
+_SL_LR = _SL.get("low_r", "低活跃")
+_SL_HF = _SL.get("high_f", "高频")
+_SL_LF = _SL.get("low_f", "低频")
+_SL_HM = _SL.get("high_m", "高消费")
+_SL_LM = _SL.get("low_m", "低消费")
+
+@st.cache_data(ttl=_CACHE_TTL)
 def compute_rfm(df, end_date):
     snapshot = pd.to_datetime(end_date) + timedelta(days=1)
     rfm = df.groupby("CustomerID").agg(
@@ -840,19 +889,19 @@ def compute_rfm(df, end_date):
         F=("InvoiceNo",   "nunique"),
         M=("Amount",      "sum"),
     ).reset_index()
-    rfm["R_score"] = pd.qcut(rfm["R"], 5, labels=[5,4,3,2,1]).astype(int)
-    rfm["F_score"] = pd.qcut(rfm["F"].rank(method="first"), 5, labels=[1,2,3,4,5]).astype(int)
-    rfm["M_score"] = pd.qcut(rfm["M"], 5, labels=[1,2,3,4,5]).astype(int)
+    rfm["R_score"] = pd.qcut(rfm["R"], _RFM_BINS, labels=list(range(_RFM_BINS, 0, -1))).astype(int)
+    rfm["F_score"] = pd.qcut(rfm["F"].rank(method="first"), _RFM_BINS, labels=list(range(1, _RFM_BINS+1))).astype(int)
+    rfm["M_score"] = pd.qcut(rfm["M"], _RFM_BINS, labels=list(range(1, _RFM_BINS+1))).astype(int)
 
     def label(r, f, m):
-        if r>=4 and f>=4 and m>=4: return "重要价值用户"
-        if r>=4 and f<4  and m>=4: return "重要发展用户"
-        if r<4  and f>=4 and m>=4: return "重要保持用户"
-        if r<4  and f<4  and m>=4: return "重要挽留用户"
-        if r>=4 and f>=4 and m<4:  return "一般价值用户"
-        if r>=4 and f<4  and m<4:  return "一般发展用户"
-        if r<4  and f>=4 and m<4:  return "一般保持用户"
-        return "一般挽留用户"
+        if r>=_RFM_THR and f>=_RFM_THR and m>=_RFM_THR: return _L_IV
+        if r>=_RFM_THR and f<_RFM_THR and m>=_RFM_THR:  return _L_ID
+        if r<_RFM_THR  and f>=_RFM_THR and m>=_RFM_THR:  return _L_IR
+        if r<_RFM_THR  and f<_RFM_THR  and m>=_RFM_THR:  return _L_IT
+        if r>=_RFM_THR and f>=_RFM_THR and m<_RFM_THR:   return _L_GV
+        if r>=_RFM_THR and f<_RFM_THR  and m<_RFM_THR:   return _L_GD
+        if r<_RFM_THR  and f>=_RFM_THR and m<_RFM_THR:   return _L_GR
+        return _L_GT
 
     rfm["Segment"] = rfm.apply(
         lambda x: label(x["R_score"], x["F_score"], x["M_score"]), axis=1
@@ -1331,9 +1380,10 @@ def dialog_segment_detail(seg_name, rfm, df):
 
 
 # ===== 色板 =====
-PALETTE = ['#a78bfa', '#f472b6', '#38bdf8', '#fbbf24', '#34d399', '#fb7185', '#60a5fa', '#c084fc']
+_theme = CFG.get("theme", {})
+PALETTE = _theme.get("palette", {}).get("colors", ['#a78bfa', '#f472b6', '#38bdf8', '#fbbf24', '#34d399', '#fb7185', '#60a5fa', '#c084fc'])
 
-SEGMENT_COLORS = {
+SEGMENT_COLORS = _theme.get("segment_colors", {
     "重要价值用户": "#a78bfa",
     "重要发展用户": "#38bdf8",
     "重要保持用户": "#fbbf24",
@@ -1342,7 +1392,7 @@ SEGMENT_COLORS = {
     "一般发展用户": "#34d399",
     "一般保持用户": "#c084fc",
     "一般挽留用户": "#94a3b8",
-}
+})
 
 LEGEND_NAME_MAP = {k: k[:4]+"..." for k in SEGMENT_COLORS}
 REVERSE_LEGEND_MAP = {v: k for k, v in LEGEND_NAME_MAP.items()}
@@ -1631,9 +1681,9 @@ def chart_rose(rfm):
 
 def chart_sankey(rfm):
     seg_counts = rfm["Segment"].value_counts()
-    rfm["R_group"] = rfm["R_score"].apply(lambda x: "高活跃" if x >= 4 else "低活跃")
-    rfm["F_group"] = rfm["F_score"].apply(lambda x: "高频" if x >= 4 else "低频")
-    rfm["M_group"] = rfm["M_score"].apply(lambda x: "高消费" if x >= 4 else "低消费")
+    rfm["R_group"] = rfm["R_score"].apply(lambda x: _SL_HR if x >= _RFM_THR else _SL_LR)
+    rfm["F_group"] = rfm["F_score"].apply(lambda x: _SL_HF if x >= _RFM_THR else _SL_LF)
+    rfm["M_group"] = rfm["M_score"].apply(lambda x: _SL_HM if x >= _RFM_THR else _SL_LM)
 
     nodes = set()
     links = []
@@ -1678,10 +1728,12 @@ with st.sidebar:
 
     # 背景选择器
     bg_options = list(BACKGROUNDS.keys())
-    bg_choice = st.selectbox("🎨 背景主题", bg_options, index=0)
+    _ui_cfg = CFG.get("ui", {})
+    bg_choice = st.selectbox("🎨 背景主题", bg_options, index=_ui_cfg.get("default_bg_index", 0))
 
-    start_date = st.date_input("开始日期", value=pd.to_datetime("2010-12-01"))
-    end_date   = st.date_input("结束日期", value=pd.to_datetime("2011-12-09"))
+    _dd = CFG.get("default_dates", {})
+    start_date = st.date_input("开始日期", value=pd.to_datetime(_dd.get("start_date", "2010-12-01")))
+    end_date   = st.date_input("结束日期", value=pd.to_datetime(_dd.get("end_date", "2011-12-09")))
     countries = st.sidebar.multiselect(
         "国家筛选",
         options=sorted(df["Country"].unique().tolist()),
@@ -1694,7 +1746,8 @@ with st.sidebar:
     st.markdown("---")
     st.markdown(
         '<p style="color:#94a3b8;font-size:0.75rem;text-align:center;">'
-        'Liquid Glass · 电商用户价值分析<br/>Powered by Streamlit + Pyecharts</p>',
+        + CFG.get("sidebar", {}).get("footer_html", 'Liquid Glass · 电商用户价值分析<br/>Powered by Streamlit + Pyecharts') +
+        '</p>',
         unsafe_allow_html=True
     )
 

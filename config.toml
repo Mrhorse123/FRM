@@ -1,0 +1,146 @@
+# ============================================================
+# 电商用户价值数据分析平台 · 配置文件
+# ============================================================
+
+[app]
+page_title = "电商用户价值分析平台"
+page_icon = "📊"
+layout = "wide"
+
+[data]
+csv_file = "Online Retail.csv"
+xlsx_file = "Online Retail.xlsx"
+cache_ttl = 3600           # 数据缓存时间（秒）
+min_quantity = 0           # 数量过滤最小值
+min_unit_price = 0         # 单价过滤最小值
+
+[rfm]
+n_bins = 5                 # R/F/M 评分的分箱数
+high_threshold = 4         # 高活跃/高频/高消费的阈值（>= 此值视为高）
+
+[rfm.labels]
+important_value = "重要价值用户"
+important_develop = "重要发展用户"
+important_retain = "重要保持用户"
+important_retrieve = "重要挽留用户"
+general_value = "一般价值用户"
+general_develop = "一般发展用户"
+general_retain = "一般保持用户"
+general_retrieve = "一般挽留用户"
+
+[rfm.sankey_labels]
+high_r = "高活跃"
+low_r = "低活跃"
+high_f = "高频"
+low_f = "低频"
+high_m = "高消费"
+low_m = "低消费"
+
+[default_dates]
+start_date = "2010-12-01"
+end_date = "2011-12-09"
+
+# ===== 背景图片 =====
+[backgrounds]
+dir = "bg_images"
+
+[backgrounds.options]
+"纯净白（默认）" = ""
+"深空蓝紫" = "bg1_deep_space.jpg"
+"日落暖橙" = "bg2_sunset.jpg"
+"极光青绿" = "bg3_aurora.jpg"
+"梦幻粉紫" = "bg4_dreamy.jpg"
+"苹果灰蓝" = "bg5_apple_gray.jpg"
+"黑金奢华" = "bg6_black_gold.jpg"
+
+# ===== CSS 主题颜色 =====
+[theme.css_vars]
+ios_bg = "#f5f5f7"
+ios_surface = "rgba(255,255,255,0.65)"
+ios_glass = "rgba(255,255,255,0.55)"
+ios_border = "rgba(0,0,0,0.06)"
+ios_border_hover = "rgba(0,0,0,0.10)"
+ios_blue = "#007AFF"
+ios_blue_glow = "rgba(0,122,255,0.15)"
+ios_purple = "#AF52DE"
+ios_purple_glow = "rgba(175,82,222,0.14)"
+ios_pink = "#FF2D55"
+ios_pink_glow = "rgba(255,45,85,0.13)"
+ios_orange = "#FF9500"
+ios_orange_glow = "rgba(255,149,0,0.12)"
+ios_green = "#34C759"
+ios_teal = "#5AC8FA"
+ios_text = "#1D1D1F"
+ios_text2 = "#424245"
+ios_text3 = "#86868B"
+ios_text4 = "#AEAEB2"
+ios_radius = "18px"
+ios_radius_sm = "12px"
+
+[theme.palette]
+# 全局图表调色板
+colors = ['#a78bfa', '#f472b6', '#38bdf8', '#fbbf24', '#34d399', '#fb7185', '#60a5fa', '#c084fc']
+
+[theme.segment_colors]
+"重要价值用户" = "#a78bfa"
+"重要发展用户" = "#38bdf8"
+"重要保持用户" = "#fbbf24"
+"重要挽留用户" = "#fb7185"
+"一般价值用户" = "#60a5fa"
+"一般发展用户" = "#34d399"
+"一般保持用户" = "#c084fc"
+"一般挽留用户" = "#94a3b8"
+
+[theme.kpi_gradients]
+"1" = "#007AFF → #5AC8FA → #007AFF"
+"2" = "#34C759 → #30D158 → #34C759"
+"3" = "#FF9500 → #FF6B00 → #FF9500"
+"4" = "#AF52DE → #DA8FFF → #AF52DE"
+
+[theme.heatmap]
+range_color = ["#f0f4ff", "#a78bfa", "#7c3aed"]
+
+# ===== 图表尺寸（高度，单位 px） =====
+[charts.heights]
+monthly_trend = 340
+country_top10 = 340
+rfm_pie = 360
+rfm_bar = 380
+eda_hist = 340
+eda_top10_product = 340
+eda_heatmap = 340
+eda_hourly = 320
+eda_weekday = 320
+rfm_scatter = 380
+rose = 380
+sankey = 400
+default = 350
+
+# ===== EDA 参数 =====
+[eda]
+hist_bins = 30
+dialog_hist_bins = 20
+amount_clip_quantile = 0.99
+
+# ===== UI 参数 =====
+[ui]
+default_bg_index = 0           # 默认背景选择索引
+popup_max_width = "min(92vw, 720px)"
+popup_max_height = "88vh"
+popup_iframe_height = "85vh"
+sample_rows = 50               # 数据样本展示行数
+segment_detail_rows = 50       # 分层用户明细展示行数
+
+# ===== Feature Flags =====
+[features]
+hide_main_menu = true
+hide_footer = true
+chart_theme = "white"
+
+# ===== 外部资源 =====
+[resources]
+google_fonts_url = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=SF+Pro+Display:wght@400;500;600;700&display=swap"
+
+# ===== 侧边栏 =====
+[sidebar]
+footer_html = "Liquid Glass · 电商用户价值分析<br/>Powered by Streamlit + Pyecharts"
