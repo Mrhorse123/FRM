@@ -949,44 +949,6 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
 '''
         html = html.replace('</body>', popup_block + '</body>')
 
-    # ===== 图表悬浮聚焦：在 iframe 内操作父页面 stElementContainer =====
-    focus_js = '''
-<script>
-(function(){
-  var chartDom = document.querySelector("[_echarts_instance_]");
-  if(!chartDom){ setTimeout(arguments.callee,300); return; }
-  var pdoc = parent.document;
-  chartDom.addEventListener("mouseenter", function(){
-    var myCtn = window.frameElement ? window.frameElement.parentElement : null;
-    var all = pdoc.querySelectorAll('[data-testid="stElementContainer"]');
-    all.forEach(function(c){
-      if(c === myCtn){
-        c.style.filter = "none";
-        c.style.zIndex = "100";
-        c.style.boxShadow = "0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18)";
-        c.style.transition = "all .4s ease";
-      } else {
-        c.style.backdropFilter = "blur(5px)";
-        c.style.transition = "all .4s ease";
-      }
-    });
-  });
-  chartDom.addEventListener("mouseleave", function(){
-    // 弹窗打开时不消除模糊
-    var ov = document.querySelector(".oc-overlay");
-    if(ov && ov.style.display === "block") return;
-    pdoc.querySelectorAll('[data-testid="stElementContainer"]').forEach(function(c){
-      c.style.filter = "";
-      c.style.backdropFilter = "";
-      c.style.zIndex = "";
-      c.style.boxShadow = "";
-    });
-  });
-})();
-</script>
-'''
-    html = html.replace('</body>', focus_js + '</body>')
-
     components.html(html, height=height + 30)
 
 
