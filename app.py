@@ -590,24 +590,6 @@ hr {
 /* 下拉菜单防遮挡 */
 div[data-baseweb="popover"] { z-index: 999999 !important; }
 div[role="listbox"] { z-index: 999999 !important; }
-
-/* ========== 图表悬浮聚焦 ========== */
-.glass-card {
-    transition: filter .4s ease, transform .4s ease, box-shadow .4s ease, opacity .4s ease;
-}
-body:has([data-testid="stIFrame"]:hover) .glass-card:not(:hover),
-body:has([data-testid="stIFrame"]:hover) .kpi-card:not(:hover) {
-    filter: blur(5px) brightness(0.55) !important;
-    transform: scale(0.97) !important;
-    opacity: 0.65 !important;
-}
-body:has([data-testid="stIFrame"]:hover) .glass-card:hover {
-    filter: none !important;
-    transform: scale(1.03) !important;
-    opacity: 1 !important;
-    z-index: 99 !important;
-    box-shadow: 0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18) !important;
-}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
@@ -810,28 +792,6 @@ div[data-testid="stVerticalBlock"] {
     .oc-table tr:hover td { background: rgba(0,122,255,0.08); }
     .oc-close { background: rgba(255,255,255,0.1); color: #fff; }
     .oc-close:hover { background: rgba(255,59,48,0.15); color: #FF3B30; }
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ===== 图表悬浮聚焦 — CSS :has() =====
-st.markdown("""
-<style>
-.glass-card, .kpi-card { transition: filter .35s ease, transform .35s ease, box-shadow .35s ease, opacity .35s ease; }
-@supports selector(:has(*)) {
-    body:has(.glass-card:hover) .glass-card:not(:hover),
-    body:has(.glass-card:hover) .kpi-card:not(:hover) {
-        filter: blur(4px) brightness(0.6) !important;
-        transform: scale(0.98) !important;
-        opacity: 0.7 !important;
-    }
-    body:has(.glass-card:hover) .glass-card:hover {
-        filter: none !important;
-        transform: scale(1.03) !important;
-        opacity: 1 !important;
-        z-index: 100 !important;
-        box-shadow: 0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.2) !important;
-    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1988,6 +1948,3 @@ with tab4:
     cards_html += '</div>'
     st.markdown(cards_html, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
-
-
