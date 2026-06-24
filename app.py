@@ -968,14 +968,17 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
         c.style.boxShadow = "0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18)";
         c.style.transition = "all .4s ease";
       } else {
-        c.style.filter = "blur(5px) brightness(0.55)";
+        c.style.filter = "blur(5px)";
         c.style.transform = "scale(0.97)";
-        c.style.opacity = "0.65";
+        c.style.opacity = "0.75";
         c.style.transition = "all .4s ease";
       }
     });
   });
   chartDom.addEventListener("mouseleave", function(){
+    // 弹窗打开时不消除模糊
+    var ov = document.querySelector(".oc-overlay");
+    if(ov && ov.style.display === "block") return;
     pdoc.querySelectorAll('[data-testid="stElementContainer"]').forEach(function(c){
       c.style.filter = "";
       c.style.transform = "";
