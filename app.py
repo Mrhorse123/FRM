@@ -949,6 +949,10 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
 '''
         html = html.replace('</body>', popup_block + '</body>')
 
+    # 图表悬浮放大
+    zoom_js = '<script>(function(){var d=document.querySelector("[_echarts_instance_]");if(!d){setTimeout(arguments.callee,300);return;}d.addEventListener("mouseenter",function(){var c=window.frameElement?window.frameElement.parentElement:null;if(c){c.style.transform="scale(1.03)";c.style.transition="transform .3s ease";c.style.zIndex="10";c.style.boxShadow="0 12px 48px rgba(120,180,255,0.15)";}});d.addEventListener("mouseleave",function(){var c=window.frameElement?window.frameElement.parentElement:null;if(c){c.style.transform="";c.style.boxShadow="";c.style.zIndex="";}});})();</script>'
+    html = html.replace('</body>', zoom_js + '</body>')
+
     components.html(html, height=height + 30)
 
 
@@ -1945,6 +1949,7 @@ with tab4:
 <div style="color:#94a3b8;font-size:12px;margin-bottom:4px;">{label}</div>
 <div style="color:#fff;font-size:15px;font-weight:600;word-break:break-all;">{val}</div>
 </div>'''
+
     cards_html += '</div>'
     st.markdown(cards_html, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
