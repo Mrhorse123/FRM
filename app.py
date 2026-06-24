@@ -590,19 +590,6 @@ hr {
 /* 下拉菜单防遮挡 */
 div[data-baseweb="popover"] { z-index: 999999 !important; }
 div[role="listbox"] { z-index: 999999 !important; }
-/* ========== 图表悬浮聚焦效果 ========== */
-.glass-card { transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, filter 0.35s ease; }
-.stApp:has(.glass-card:hover) .glass-card:not(:hover),
-.stApp:has(.glass-card:hover) .kpi-card:not(:hover) {
-    filter: blur(5px) brightness(0.7);
-    transform: scale(0.98);
-}
-.stApp:has(.glass-card:hover) .glass-card:hover {
-    filter: none !important;
-    transform: scale(1.02) !important;
-    z-index: 100 !important;
-    box-shadow: 0 20px 60px rgba(120,180,255,0.18), 0 0 0 2px rgba(120,180,255,0.15) !important;
-}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
@@ -807,6 +794,26 @@ div[data-testid="stVerticalBlock"] {
     .oc-close:hover { background: rgba(255,59,48,0.15); color: #FF3B30; }
 }
 </style>
+""", unsafe_allow_html=True)
+
+# ===== 图表悬浮聚焦 — SVG onload 注入 JS =====
+st.markdown("""
+<svg onload="
+(function(){
+  var G=document.querySelectorAll('.glass-card');
+  function blurAll(el){
+    G.forEach(function(c){
+      if(c!==el){c.style.filter='blur(5px) brightness(0.7)';c.style.transform='scale(0.98)';c.style.transition='all .35s ease';}
+    });
+    el.style.filter='none';el.style.transform='scale(1.02)';
+    el.style.boxShadow='0 20px 60px rgba(120,180,255,0.18), 0 0 0 2px rgba(120,180,255,0.15)';el.style.zIndex='100';
+  }
+  function unblurAll(){
+    G.forEach(function(c){c.style.filter='';c.style.transform='';c.style.boxShadow='';c.style.zIndex='';});
+  }
+  window._cf=blurAll;window._cu=unblurAll;
+})();
+" style="display:none"></svg>
 """, unsafe_allow_html=True)
 
 
@@ -1855,65 +1862,65 @@ with tab1:
 
     col_l, col_r = st.columns(2)
     with col_l:
-        st.markdown('<div class="glass-card"><p class="sub-title">📈 月度销售趋势</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">📈 月度销售趋势</p>', unsafe_allow_html=True)
         render_pe(chart_monthly_trend(df_filtered), height=340, chart_id="monthly_trend", detail_html=detail_monthly)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_r:
-        st.markdown('<div class="glass-card"><p class="sub-title">🌍 国家销售额 TOP10</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🌍 国家销售额 TOP10</p>', unsafe_allow_html=True)
         render_pe(chart_country_top10(df_filtered), height=340, chart_id="country_top10", detail_html=detail_country)
         st.markdown('</div>', unsafe_allow_html=True)
 
     col_l2, col_r2 = st.columns(2)
     with col_l2:
-        st.markdown('<div class="glass-card"><p class="sub-title">🥧 RFM 用户分层占比</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🥧 RFM 用户分层占比</p>', unsafe_allow_html=True)
         render_pe(chart_rfm_pie(rfm), height=360, chart_id="rfm_pie", detail_html=detail_rfm)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_r2:
-        st.markdown('<div class="glass-card"><p class="sub-title">📊 各分层用户数与销售额</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">📊 各分层用户数与销售额</p>', unsafe_allow_html=True)
         render_pe(chart_rfm_bar(rfm), height=380, chart_id="rfm_bar", detail_html=detail_rfm)
         st.markdown('</div>', unsafe_allow_html=True)
 
 with tab2:
     col_a, col_b = st.columns(2)
     with col_a:
-        st.markdown('<div class="glass-card"><p class="sub-title">🛒 每单金额分布</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🛒 每单金额分布</p>', unsafe_allow_html=True)
         render_pe(chart_eda_hist(df_filtered), height=340)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_b:
-        st.markdown('<div class="glass-card"><p class="sub-title">🏆 热销商品 TOP10</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🏆 热销商品 TOP10</p>', unsafe_allow_html=True)
         render_pe(chart_eda_top10(df_filtered), height=340)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card"><p class="sub-title">🔥 月度销售热力图</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🔥 月度销售热力图</p>', unsafe_allow_html=True)
     render_pe(chart_eda_heatmap(df_filtered), height=340)
     st.markdown('</div>', unsafe_allow_html=True)
 
     col_c, col_d = st.columns(2)
     with col_c:
-        st.markdown('<div class="glass-card"><p class="sub-title">⏰ 小时订单分布</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">⏰ 小时订单分布</p>', unsafe_allow_html=True)
         render_pe(chart_eda_hour(df_filtered), height=320)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_d:
-        st.markdown('<div class="glass-card"><p class="sub-title">📅 星期订单分布</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">📅 星期订单分布</p>', unsafe_allow_html=True)
         render_pe(chart_eda_weekday(df_filtered), height=320)
         st.markdown('</div>', unsafe_allow_html=True)
 
 with tab3:
     col_e, col_f = st.columns(2)
     with col_e:
-        st.markdown('<div class="glass-card"><p class="sub-title">🔵 RFM 三维散点图</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🔵 RFM 三维散点图</p>', unsafe_allow_html=True)
         render_pe(chart_rfm_scatter(rfm), height=380)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_f:
-        st.markdown('<div class="glass-card"><p class="sub-title">🥧 分层占比</p>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🥧 分层占比</p>', unsafe_allow_html=True)
         render_pe(chart_rose(rfm), height=380)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card"><p class="sub-title">🌊 RFM 分层桑基图</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()"><p class="sub-title">🌊 RFM 分层桑基图</p>', unsafe_allow_html=True)
     render_pe(chart_sankey(rfm), height=400)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card" style="overflow:visible !important"><p class="sub-title">📋 分层用户明细</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()" style="overflow:visible !important"><p class="sub-title">📋 分层用户明细</p>', unsafe_allow_html=True)
     drill_seg = st.selectbox("选择分层", options=SEGMENT_ORDER, key="drill", label_visibility="collapsed")
     drill_df = rfm[rfm["Segment"] == drill_seg].sort_values("M", ascending=False).head(50)
     drill_show = drill_df[["CustomerID", "R", "F", "M", "R_score", "F_score", "M_score"]].copy()
@@ -1922,7 +1929,7 @@ with tab3:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with tab4:
-    st.markdown('<div class="glass-card" style="margin-bottom:16px;"><p class="sub-title" style="color:#007AFF;">📋 字段说明</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()" style="margin-bottom:16px;"><p class="sub-title" style="color:#007AFF;">📋 字段说明</p>', unsafe_allow_html=True)
     cols = st.columns(4)
     fields = [
         ("InvoiceNo", "发票编号"), ("StockCode", "商品编码"), ("Description", "商品描述"),
@@ -1934,11 +1941,11 @@ with tab4:
             st.markdown(f'<strong style="color:#fff;">{f}</strong><br><span style="color:#94a3b8;font-size:13px">{d}</span>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card" style="margin-bottom:16px;margin-top:12px;"><p class="sub-title">📄 数据样本（前50行）</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()" style="margin-bottom:16px;margin-top:12px;"><p class="sub-title">📄 数据样本（前50行）</p>', unsafe_allow_html=True)
     st.dataframe(df_filtered.head(50), use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card" style="margin-top:12px;"><p class="sub-title" style="color:#007AFF;">🔍 数据质量报告</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" onmouseenter="_cf(this)" onmouseleave="_cu()" style="margin-top:12px;"><p class="sub-title" style="color:#007AFF;">🔍 数据质量报告</p>', unsafe_allow_html=True)
     nulls = df_filtered.isnull().sum()
     nulls = nulls[nulls > 0]
     items = [
