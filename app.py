@@ -962,17 +962,11 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
     all.forEach(function(c){
       if(c === myCtn){
         c.style.filter = "none";
-        c.style.transform = "scale(1.03)";
-        c.style.opacity = "1";
         c.style.zIndex = "100";
         c.style.boxShadow = "0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18)";
         c.style.transition = "all .4s ease";
       } else {
-        // 检测暗色背景：如果 body 背景是深色，用 brightness 提亮
-        var isDark = window.getComputedStyle(pdoc.body).backgroundColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        var brightness = isDark && (parseInt(isDark[1]) + parseInt(isDark[2]) + parseInt(isDark[3])) / 3 < 100 ? "brightness(1.15)" : "brightness(0.95)";
-        c.style.filter = "blur(5px) " + brightness;
-        c.style.transform = "scale(0.97)";
+        c.style.filter = "blur(5px)";
         c.style.transition = "all .4s ease";
       }
     });
@@ -983,8 +977,6 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
     if(ov && ov.style.display === "block") return;
     pdoc.querySelectorAll('[data-testid="stElementContainer"]').forEach(function(c){
       c.style.filter = "";
-      c.style.transform = "";
-      c.style.opacity = "";
       c.style.zIndex = "";
       c.style.boxShadow = "";
     });
