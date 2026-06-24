@@ -1365,11 +1365,11 @@ def chart_monthly_trend(df):
                    itemstyle_opts=opts.ItemStyleOpts(color="#f472b6"))
         .extend_axis(yaxis=opts.AxisOpts(name="销售额", type_="value",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
-                     axislabel_opts=opts.LabelOpts(formatter="{value}"),
+                     axislabel_opts=opts.LabelOpts(color="#94a3b8", formatter="{value}"),
                      splitline_opts=opts.SplitLineOpts(is_show=False)))
         .extend_axis(yaxis=opts.AxisOpts(name="订单数", type_="value",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
-                     axislabel_opts=opts.LabelOpts(formatter="{value}"),
+                     axislabel_opts=opts.LabelOpts(color="#94a3b8", formatter="{value}"),
                      splitline_opts=opts.SplitLineOpts(is_show=False)))
         .set_global_opts(
             xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=45, color="#94a3b8")),
@@ -1399,7 +1399,7 @@ def chart_country_top10(df):
             xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=35, color="#94a3b8")),
             yaxis_opts=opts.AxisOpts(name="销售额",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
-                     axislabel_opts=opts.LabelOpts(formatter="{value}"),
+                     axislabel_opts=opts.LabelOpts(color="#94a3b8", formatter="{value}"),
                      splitline_opts=opts.SplitLineOpts(is_show=False)),
             tooltip_opts=opts.TooltipOpts(trigger="axis"),
         )
@@ -1451,6 +1451,8 @@ def chart_rfm_bar(rfm):
                      splitline_opts=opts.SplitLineOpts(is_show=False)))
         .set_global_opts(
             xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=30, color="#94a3b8", font_size=10)),
+            yaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(color="#94a3b8"),
+                                     splitline_opts=opts.SplitLineOpts(is_show=False)),
             legend_opts=opts.LegendOpts(textstyle_opts=opts.TextStyleOpts(color="#94a3b8")),
             tooltip_opts=opts.TooltipOpts(trigger="axis"),
         )
