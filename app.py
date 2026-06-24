@@ -1889,7 +1889,7 @@ with tab3:
     render_pe(chart_sankey(rfm), height=400)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card"><p class="sub-title">📋 分层用户明细</p>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card" style="overflow:visible !important"><p class="sub-title">📋 分层用户明细</p>', unsafe_allow_html=True)
     drill_seg = st.selectbox("选择分层", options=SEGMENT_ORDER, key="drill", label_visibility="collapsed")
     drill_df = rfm[rfm["Segment"] == drill_seg].sort_values("M", ascending=False).head(50)
     drill_show = drill_df[["CustomerID", "R", "F", "M", "R_score", "F_score", "M_score"]].copy()
