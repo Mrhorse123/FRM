@@ -596,6 +596,16 @@ div[data-testid="stElementContainer"].st-key-drill {
     margin-top: 10px !important;
     margin-bottom: 10px !important;
 }
+
+/* ========== 移动端响应式 ========== */
+@media (max-width: 768px) {
+    div[data-testid="stHorizontalBlock"] { flex-direction: column !important; }
+    div[data-testid="column"] { width: 100% !important; flex: none !important; }
+    .glass-card { margin-left: 0 !important; margin-right: 0 !important; }
+    .kpi-card { margin-bottom: 10px; }
+    .block-container { padding: 10px 8px !important; }
+    section[data-testid="stSidebar"] .block-container { padding: 12px 14px !important; }
+}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
@@ -1371,10 +1381,15 @@ SEGMENT_ORDER = list(SEGMENT_COLORS.keys())
 def chart_monthly_trend(df):
     monthly = df.groupby("Month").agg(销售额=("Amount", "sum"), 订单数=("InvoiceNo", "nunique")).reset_index()
     months = monthly["Month"].tolist()
+    # 计算 3 期移动平均 + 预测 2 期
+    sales_ma = monthly["销售额"].rolling(3, min_periods=3).mean()
+    last_ma = sales_ma.iloc[-1] if len(sales_ma) > 0 else 0
+    pred_vals = [None] * (len(sales_ma) - 2) + sales_ma.iloc[-2:].tolist() + [last_ma] * 2
+    pred_labels = months + ["预测1", "预测2"]
     return (
         Line(init_opts=opts.InitOpts(theme="white", bg_color="transparent", width="100%", height="340px"))
-        .add_xaxis(months)
-        .add_yaxis("销售额", monthly["销售额"].round(2).tolist(),
+        .add_xaxis(pred_labels)
+        .add_yaxis("销售额", monthly["销售额"].round(2).tolist() + [None] * 2,
                    yaxis_index=0, is_smooth=True, label_opts=opts.LabelOpts(is_show=False),
                    linestyle_opts=opts.LineStyleOpts(width=3, color="#a78bfa"),
                    itemstyle_opts=opts.ItemStyleOpts(color="#a78bfa"))
@@ -1382,6 +1397,10 @@ def chart_monthly_trend(df):
                    yaxis_index=1, is_smooth=True, label_opts=opts.LabelOpts(is_show=False),
                    linestyle_opts=opts.LineStyleOpts(width=3, color="#f472b6"),
                    itemstyle_opts=opts.ItemStyleOpts(color="#f472b6"))
+        .add_yaxis("销售预测(3期MA)", pred_vals,
+                   yaxis_index=0, is_smooth=True, label_opts=opts.LabelOpts(is_show=False),
+                   linestyle_opts=opts.LineStyleOpts(width=2, type_="dashed", color="#34D399"),
+                   itemstyle_opts=opts.ItemStyleOpts(color="#34D399"))
         .extend_axis(yaxis=opts.AxisOpts(name="订单数", type_="value",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
                      axislabel_opts=opts.LabelOpts(color="#94a3b8"),
@@ -1819,6 +1838,11 @@ if countries:
 rfm = compute_rfm(df_filtered, str(end_date))
 if seg_filter:
     rfm = rfm[rfm["Segment"].isin(seg_filter)]
+
+# 数据导出按钮
+st.sidebar.markdown("---")
+csv_export = df_filtered.to_csv(index=False).encode('utf-8')
+st.sidebar.download_button("📥 导出筛选数据 (CSV)", csv_export, "filtered_data.csv", "text/csv")
 
 total_revenue = df_filtered["Amount"].sum()
 total_orders  = df_filtered["InvoiceNo"].nunique()
