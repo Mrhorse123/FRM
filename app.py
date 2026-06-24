@@ -590,6 +590,24 @@ hr {
 /* 下拉菜单防遮挡 */
 div[data-baseweb="popover"] { z-index: 999999 !important; }
 div[role="listbox"] { z-index: 999999 !important; }
+
+/* ========== 图表悬浮聚焦 ========== */
+.glass-card {
+    transition: filter .4s ease, transform .4s ease, box-shadow .4s ease, opacity .4s ease;
+}
+body:has([data-testid="stIFrame"]:hover) .glass-card:not(:hover),
+body:has([data-testid="stIFrame"]:hover) .kpi-card:not(:hover) {
+    filter: blur(5px) brightness(0.55) !important;
+    transform: scale(0.97) !important;
+    opacity: 0.65 !important;
+}
+body:has([data-testid="stIFrame"]:hover) .glass-card:hover {
+    filter: none !important;
+    transform: scale(1.03) !important;
+    opacity: 1 !important;
+    z-index: 99 !important;
+    box-shadow: 0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18) !important;
+}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
