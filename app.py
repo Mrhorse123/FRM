@@ -581,6 +581,9 @@ hr {
     background: rgba(0,0,0,0.22);
 }
 
+/* 下拉菜单防遮挡 */
+div[data-baseweb="popover"] { z-index: 999999 !important; }
+div[role="listbox"] { z-index: 999999 !important; }
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
