@@ -1381,10 +1381,23 @@ SEGMENT_ORDER = list(SEGMENT_COLORS.keys())
 def chart_monthly_trend(df):
     monthly = df.groupby("Month").agg(销售额=("Amount", "sum"), 订单数=("InvoiceNo", "nunique")).reset_index()
     months = monthly["Month"].tolist()
-    # 计算 3 期移动平均 + 预测 2 期
+    # 计算 3 期移动平均 + 预测 2 期（线性趋势外推）
     sales_ma = monthly["销售额"].rolling(3, min_periods=3).mean()
-    last_ma = sales_ma.iloc[-1] if len(sales_ma) > 0 else 0
-    pred_vals = [None] * (len(sales_ma) - 2) + sales_ma.iloc[-2:].tolist() + [last_ma] * 2
+    # 用最后4期的线性趋势拟合预测
+    y = monthly["销售额"].values
+    n = len(y)
+    x = range(n)
+    if n >= 4:
+        import numpy as np
+        x_last = np.array([n-4, n-3, n-2, n-1])
+        y_last = y[-4:]
+        slope, intercept = np.polyfit(x_last, y_last, 1)
+        p1 = slope * n + intercept
+        p2 = slope * (n+1) + intercept
+    else:
+        last_ma = sales_ma.iloc[-1] if len(sales_ma) > 0 else 0
+        p1 = p2 = last_ma
+    pred_vals = [None] * (len(sales_ma) - 2) + sales_ma.iloc[-2:].tolist() + [round(p1, 0), round(p2, 0)]
     pred_labels = months + ["预测1", "预测2"]
     return (
         Line(init_opts=opts.InitOpts(theme="white", bg_color="transparent", width="100%", height="340px"))
