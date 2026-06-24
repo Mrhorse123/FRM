@@ -1608,7 +1608,7 @@ def chart_rfm_scatter(rfm):
                          [list(z) for z in zip(data_map[s][0], data_map[s][1])],
                          symbol_size=6, symbol="circle",
                          label_opts=opts.LabelOpts(is_show=False),
-                         itemstyle_opts=opts.ItemStyleOpts(opacity=0.7))
+                         itemstyle_opts=opts.ItemStyleOpts(opacity=0.7, color=SEGMENT_COLORS.get(s, "#999")))
     sc.set_global_opts(
         xaxis_opts=opts.AxisOpts(name="R (距最后购买天数)", name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
                                  axislabel_opts=opts.LabelOpts(color="#94a3b8"),
@@ -1619,9 +1619,7 @@ def chart_rfm_scatter(rfm):
         legend_opts=opts.LegendOpts(textstyle_opts=opts.TextStyleOpts(color="#94a3b8", font_size=10),
                                     orient="vertical", pos_right="0%", pos_top="10%"),
         tooltip_opts=opts.TooltipOpts(trigger="item"),
-        visualmap_opts=opts.VisualMapOpts(is_show=False),
     )
-    sc.set_colors([SEGMENT_COLORS[s] for s in seg_list])
     return sc
 
 
