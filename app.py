@@ -1365,11 +1365,11 @@ def chart_monthly_trend(df):
                    itemstyle_opts=opts.ItemStyleOpts(color="#f472b6"))
         .extend_axis(yaxis=opts.AxisOpts(name="销售额", type_="value",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
-                     axislabel_opts=opts.LabelOpts(color="#94a3b8", formatter="{value}"),
+                     axislabel_opts=opts.LabelOpts(color="#94a3b8"),
                      splitline_opts=opts.SplitLineOpts(is_show=False)))
         .extend_axis(yaxis=opts.AxisOpts(name="订单数", type_="value",
                      name_textstyle_opts=opts.TextStyleOpts(color="#94a3b8"),
-                     axislabel_opts=opts.LabelOpts(color="#94a3b8", formatter="{value}"),
+                     axislabel_opts=opts.LabelOpts(color="#94a3b8"),
                      splitline_opts=opts.SplitLineOpts(is_show=False)))
         .set_global_opts(
             xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=45, color="#94a3b8")),
