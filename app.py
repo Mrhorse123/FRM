@@ -377,6 +377,12 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] .block-container {
     padding: 18px 22px !important;
 }
+/* 侧边栏下拉框与输入框黑色半透明背景 */
+section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+section[data-testid="stSidebar"] [data-baseweb="multiselect"] > div,
+section[data-testid="stSidebar"] div[data-testid="stDateInput"] > div > div {
+    background: rgba(0,0,0,0.05) !important;
+}
 section[data-testid="stSidebar"] .stMarkdown,
 section[data-testid="stSidebar"] label,
 section[data-testid="stSidebar"] .stMarkdown p,
@@ -1754,6 +1760,11 @@ if bg_file:
             background: transparent !important;
             backdrop-filter: none !important;
             border-right: 0.5px solid rgba(255,255,255,0.08) !important;
+        }
+        section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+        section[data-testid="stSidebar"] [data-baseweb="multiselect"] > div,
+        section[data-testid="stSidebar"] div[data-testid="stDateInput"] > div > div {
+            background: rgba(0,0,0,0.05) !important;
         }
         section[data-testid="stSidebar"] label,
         section[data-testid="stSidebar"] .stMarkdown,
