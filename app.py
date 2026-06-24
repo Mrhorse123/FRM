@@ -796,44 +796,42 @@ div[data-testid="stVerticalBlock"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ===== 图表悬浮聚焦 — 通过 components.html 注入 JS =====
-components.html("""
+# ===== 图表悬浮聚焦 — 纯 CSS =====
+st.markdown("""
 <style>
-.glass-card { transition: filter .35s ease, transform .35s ease, box-shadow .35s ease; }
-.glass-card.focused {
-    filter: none !important;
+.glass-card { transition: filter .35s ease, transform .35s ease, box-shadow .35s ease, opacity .35s ease; }
+.glass-card:hover {
     transform: scale(1.02) !important;
     z-index: 100;
-    box-shadow: 0 20px 60px rgba(120,180,255,0.18), 0 0 0 2px rgba(120,180,255,0.15) !important;
+    box-shadow: 0 20px 60px rgba(120,180,255,0.25), 0 0 0 2px rgba(120,180,255,0.2) !important;
 }
-.glass-card.blurred {
-    filter: blur(5px) brightness(0.7);
+/* 当 main 内有卡片被 hover 时，所有兄弟卡片模糊 */
+main:has(.glass-card:hover) .glass-card:not(:hover),
+main:has(.glass-card:hover) .kpi-card:not(:hover) {
+    filter: blur(4px) brightness(0.6);
     transform: scale(0.98);
+    opacity: 0.7;
+}
+/* 兼容不支持 :has 的浏览器 —— 用 JS 加 class 到 body */
+body.has-hover .glass-card:not(:hover),
+body.has-hover .kpi-card:not(:hover) {
+    filter: blur(4px) brightness(0.6);
+    transform: scale(0.98);
+    opacity: 0.7;
+}
+body.has-hover .glass-card:hover {
+    filter: none;
+    transform: scale(1.02);
+    opacity: 1;
 }
 </style>
-<script>
-(function(){
-    function setup(){
-        var cards = document.querySelectorAll('.glass-card');
-        if(!cards.length){ setTimeout(setup, 300); return; }
-        cards.forEach(function(c){
-            c.addEventListener('mouseenter', function(){
-                cards.forEach(function(x){
-                    if(x!==c){ x.classList.add('blurred'); x.classList.remove('focused'); }
-                });
-                c.classList.add('focused'); c.classList.remove('blurred');
-            });
-            c.addEventListener('mouseleave', function(){
-                cards.forEach(function(x){ x.classList.remove('blurred','focused'); });
-            });
-        });
-    }
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', setup);
-    else setup();
-    setTimeout(setup, 1000);
-})();
-</script>
-""", height=0)
+<svg onload="
+document.querySelectorAll('.glass-card').forEach(function(c){
+  c.addEventListener('mouseenter', function(){ document.body.classList.add('has-hover'); });
+  c.addEventListener('mouseleave', function(){ document.body.classList.remove('has-hover'); });
+});
+" style="position:absolute;width:0;height:0"></svg>
+""", unsafe_allow_html=True)
 
 
 # ===== 数据加载与缓存 =====
