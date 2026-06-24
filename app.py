@@ -590,6 +590,16 @@ hr {
 /* 下拉菜单防遮挡 */
 div[data-baseweb="popover"] { z-index: 999999 !important; }
 div[role="listbox"] { z-index: 999999 !important; }
+/* ========== 图表悬浮聚焦效果 ========== */
+.glass-card { transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, filter 0.35s ease; }
+.glass-card.blur-out { filter: blur(5px) brightness(0.7); transform: scale(0.98); pointer-events: none; }
+.glass-card.focus-in {
+    filter: none !important;
+    transform: scale(1.015) !important;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+    box-shadow: 0 20px 60px rgba(120,180,255,0.18), 0 0 0 2px rgba(120,180,255,0.15) !important;
+}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
@@ -1948,3 +1958,28 @@ with tab4:
     cards_html += '</div>'
     st.markdown(cards_html, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+
+# ===== 图表悬浮聚焦 JS =====
+st.markdown("""
+<script>
+(function(){
+    var cards = document.querySelectorAll('.glass-card');
+    if (!cards.length) return;
+    var active = null;
+    cards.forEach(function(c){
+        c.addEventListener('mouseenter', function(){
+            if (active) return;
+            active = c;
+            cards.forEach(function(x){ if (x!==c) x.classList.add('blur-out'); });
+            c.classList.add('focus-in');
+        });
+        c.addEventListener('mouseleave', function(){
+            if (active !== c) return;
+            cards.forEach(function(x){ x.classList.remove('blur-out','focus-in'); });
+            active = null;
+        });
+    });
+})();
+</script>
+""", unsafe_allow_html=True)
+
