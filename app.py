@@ -590,6 +590,12 @@ hr {
 /* 下拉菜单防遮挡 */
 div[data-baseweb="popover"] { z-index: 999999 !important; }
 div[role="listbox"] { z-index: 999999 !important; }
+
+/* 分层用户明细 selectbox 上下边距 */
+div[data-testid="stElementContainer"].st-key-drill {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
 /* ========== 入场动画 — 精致弹性 ========== */
 @keyframes iosFadeInUp {
     from {
