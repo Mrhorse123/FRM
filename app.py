@@ -796,7 +796,7 @@ div[data-testid="stVerticalBlock"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ===== 图表悬浮聚焦 — 纯 CSS =====
+# ===== 图表悬浮聚焦 — 操作父级容器 =====
 st.markdown("""
 <style>
 .glass-card { transition: filter .35s ease, transform .35s ease, box-shadow .35s ease, opacity .35s ease; }
@@ -805,33 +805,44 @@ st.markdown("""
     z-index: 100;
     box-shadow: 0 20px 60px rgba(120,180,255,0.25), 0 0 0 2px rgba(120,180,255,0.2) !important;
 }
-/* 当 main 内有卡片被 hover 时，所有兄弟卡片模糊 */
-main:has(.glass-card:hover) .glass-card:not(:hover),
-main:has(.glass-card:hover) .kpi-card:not(:hover) {
+/* 父级容器模糊 */
+body.hovering .glass-card:not(:hover),
+body.hovering .kpi-card:not(:hover) {
     filter: blur(4px) brightness(0.6);
     transform: scale(0.98);
     opacity: 0.7;
 }
-/* 兼容不支持 :has 的浏览器 —— 用 JS 加 class 到 body */
-body.has-hover .glass-card:not(:hover),
-body.has-hover .kpi-card:not(:hover) {
-    filter: blur(4px) brightness(0.6);
-    transform: scale(0.98);
-    opacity: 0.7;
-}
-body.has-hover .glass-card:hover {
+body.hovering .glass-card:hover {
     filter: none;
     transform: scale(1.02);
     opacity: 1;
 }
 </style>
-<svg onload="
-document.querySelectorAll('.glass-card').forEach(function(c){
-  c.addEventListener('mouseenter', function(){ document.body.classList.add('has-hover'); });
-  c.addEventListener('mouseleave', function(){ document.body.classList.remove('has-hover'); });
-});
-" style="position:absolute;width:0;height:0"></svg>
 """, unsafe_allow_html=True)
+
+# 用 iframe 注入 JS，直接操作父文档
+components.html("""
+<script>
+(function(){
+    function setup(){
+        var parent = window.parent.document;
+        var cards = parent.querySelectorAll('.glass-card');
+        if(!cards.length){ setTimeout(setup, 500); return; }
+        cards.forEach(function(c){
+            c.addEventListener('mouseenter', function(){
+                parent.body.classList.add('hovering');
+            });
+            c.addEventListener('mouseleave', function(){
+                parent.body.classList.remove('hovering');
+            });
+        });
+    }
+    setup();
+    setTimeout(setup, 1000);
+    setTimeout(setup, 2000);
+})();
+</script>
+""", height=0)
 
 
 # ===== 数据加载与缓存 =====
