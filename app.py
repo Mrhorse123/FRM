@@ -966,7 +966,7 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
         c.style.boxShadow = "0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18)";
         c.style.transition = "all .4s ease";
       } else {
-        c.style.filter = "blur(5px)";
+        c.style.backdropFilter = "blur(5px)";
         c.style.transition = "all .4s ease";
       }
     });
@@ -977,6 +977,7 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
     if(ov && ov.style.display === "block") return;
     pdoc.querySelectorAll('[data-testid="stElementContainer"]').forEach(function(c){
       c.style.filter = "";
+      c.style.backdropFilter = "";
       c.style.zIndex = "";
       c.style.boxShadow = "";
     });
