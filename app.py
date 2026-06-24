@@ -949,6 +949,50 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
 '''
         html = html.replace('</body>', popup_block + '</body>')
 
+    # ===== 图表悬浮聚焦：在 iframe 内操作父页面 DOM =====
+    focus_js = '''
+<script>
+(function(){
+  var chartDom = document.querySelector("[_echarts_instance_]");
+  if(!chartDom){ setTimeout(arguments.callee,300); return; }
+  chartDom.addEventListener("mouseenter", function(){
+    try {
+      var myIframe = window.frameElement;
+      var myCard = myIframe ? myIframe.closest(".glass-card") : null;
+      var pdoc = parent.document;
+      pdoc.querySelectorAll(".glass-card, .kpi-card").forEach(function(c){
+        if(c === myCard){
+          c.style.filter = "none";
+          c.style.transform = "scale(1.03)";
+          c.style.opacity = "1";
+          c.style.zIndex = "100";
+          c.style.boxShadow = "0 24px 72px rgba(120,180,255,0.22), 0 0 0 3px rgba(120,180,255,0.18)";
+          c.style.transition = "all .4s ease";
+        } else {
+          c.style.filter = "blur(5px) brightness(0.55)";
+          c.style.transform = "scale(0.97)";
+          c.style.opacity = "0.65";
+          c.style.transition = "all .4s ease";
+        }
+      });
+    } catch(e){}
+  });
+  chartDom.addEventListener("mouseleave", function(){
+    try {
+      parent.document.querySelectorAll(".glass-card, .kpi-card").forEach(function(c){
+        c.style.filter = "";
+        c.style.transform = "";
+        c.style.opacity = "";
+        c.style.zIndex = "";
+        c.style.boxShadow = "";
+      });
+    } catch(e){}
+  });
+})();
+</script>
+'''
+    html = html.replace('</body>', focus_js + '</body>')
+
     components.html(html, height=height + 30)
 
 
