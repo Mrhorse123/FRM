@@ -946,7 +946,7 @@ def render_pe(chart, height=350, chart_id=None, detail_html=None):
   function sp(n){{
     if(!ov||!bd)return;
     var h=D[n];
-    if(!h)h="<div style='text-align:center;padding:40px;color:#000;'>暂无详情</div>";
+    if(!h)return; // 预测点等无数据时静默忽略
     bd.innerHTML=h;tt.textContent=n+" · 详情";ov.style.display="block";
   }}
   function bind(){{
